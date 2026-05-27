@@ -22,11 +22,9 @@ export const deleteEventAPI = (id) => apiService("DELETE", `/events/${id}`);
 // ─────────────────────────────
 // BOOKINGS & CHECK-IN APIs
 // ─────────────────────────────
-// Creates booking and generates UUID on server
 export const bookEventAPI = (data) => apiService("POST", "/bookings", data);
-
-// Pulls bookings list assigned to specific user id
 export const getUserBookingsAPI = (userId) => apiService("GET", `/bookings/user/${userId}`);
-
-// Admin patch verification targeting generated UUID string directly
 export const verifyTicketAttendanceAPI = (ticketUuid) => apiService("PATCH", `/bookings/verify/${ticketUuid}`);
+
+// 🌟 CRITICAL FIX: Make sure this exact function is present and spelled correctly!
+export const getAllBookingsAPI = () => apiService("GET", "/admin/bookings");
