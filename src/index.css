@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+* {
+  font-family: "Geist", sans-serif;
+}
+
+@theme {
+  --color-bg: #0f172a;        /* main background */
+  --color-surface: #1e293b;   /* cards */
+  --color-surface-soft: #334155;
+  --color-primary: #22c55e;   /* green accent */
+  --color-primary-soft: #4ade80;
+  --color-text: #e2e8f0;      /* main text */
+  --color-muted: #94a3b8;     /* secondary text */
+  --color-border: #334155;
+}
