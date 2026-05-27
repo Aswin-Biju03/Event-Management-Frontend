@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000", // ⚠️ change if your backend runs elsewhere
+  baseURL: "https://event-management-backend-40ut.onrender.com", // ⚠️ change if your backend runs elsewhere
   timeout: 10000,
 });
 
@@ -22,9 +22,8 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
-
 
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -70,7 +69,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;
