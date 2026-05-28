@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAllEventsAPI, getAllBookingsAPI } from "../services/allAPI";
+import Loader from "../components/Loader";
 
 export default function AdminHome() {
   const [events, setEvents] = useState([]);
@@ -9,12 +10,10 @@ export default function AdminHome() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Request both platform datasets simultaneously
     Promise.all([getAllEventsAPI(), getAllBookingsAPI()])
       .then(([eventsRes, bookingsRes]) => {
         const eventsData = eventsRes?.data?.events || eventsRes?.data || eventsRes || [];
         const bookingsData = bookingsRes?.data || bookingsRes || [];
-
         setEvents(Array.isArray(eventsData) ? eventsData : []);
         setBookings(Array.isArray(bookingsData) ? bookingsData : []);
         setLoading(false);
@@ -26,21 +25,13 @@ export default function AdminHome() {
       });
   }, []);
 
-  if (loading) return <div className="text-white text-center pt-24">Loading dashboard...</div>;
+  if (loading) return <Loader text="Loading dashboard..." />;
   if (error) return <div className="text-red-400 text-center pt-24">{error}</div>;
 
-  // Real-time Calculators from live transaction logs
   const now = new Date();
   const upcomingCount = events.filter((e) => new Date(e.date) > now).length;
-  
-  // Total reservations is the exact length of the bookings collection
   const calculatedTicketsCount = bookings.length;
-
-  // Accurately sum gross income by mapping populated ticket price details
-  const totalRevenue = bookings.reduce((sum, b) => {
-    const cost = b.eventId?.price || 0;
-    return sum + cost;
-  }, 0);
+  const totalRevenue = bookings.reduce((sum, b) => sum + (b.eventId?.price || 0), 0);
 
   const stats = [
     { label: "Total Events", value: events.length },
@@ -52,22 +43,17 @@ export default function AdminHome() {
   return (
     <div className="bg-bg text-text min-h-screen px-6 pt-24 pb-12">
       <div className="max-w-6xl mx-auto">
-        
-        {/* HEADER PANEL */}
         <div className="flex justify-between items-center mb-8 pb-6 border-b border-border">
           <div>
             <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
             <p className="text-sm text-muted">Overview of platform data metrics.</p>
           </div>
-          <Link
-            to="/admin/events/new"
-            className="bg-primary text-black px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-soft transition"
-          >
+          <Link to="/admin/events/new"
+            className="bg-primary text-black px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-soft transition">
             + New Event
           </Link>
         </div>
 
-        {/* STATISTICS CARD GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map(({ label, value }) => (
             <div key={label} className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
@@ -77,7 +63,6 @@ export default function AdminHome() {
           ))}
         </div>
 
-        {/* RECENT EVENTS LIST */}
         <div className="bg-surface border border-border rounded-2xl p-6 mb-8">
           <h2 className="text-lg font-bold mb-4 text-white">Recent Event Timeline</h2>
           {events.length === 0 ? (
@@ -106,16 +91,16 @@ export default function AdminHome() {
           )}
         </div>
 
-        {/* LINKS NAVIGATION BAR */}
         <div className="flex gap-4">
-          <Link to="/admin/events" className="border border-border px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-surface-soft transition text-white">
+          <Link to="/admin/events"
+            className="border border-border px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-surface-soft transition text-white">
             Manage Events
           </Link>
-          <Link to="/admin/scanner" className="border border-primary bg-primary/5 text-primary px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-primary/10 transition">
+          <Link to="/admin/scanner"
+            className="border border-primary bg-primary/5 text-primary px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-primary/10 transition">
             QR Scanner →
           </Link>
         </div>
-
       </div>
     </div>
   );
