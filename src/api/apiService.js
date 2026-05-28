@@ -5,7 +5,7 @@ const apiService = async (httpMethod, url, reqBody = null, reqHeader = {}) => {
     method: httpMethod,
     url,
     headers: reqHeader,
-    // ✅ Only attach data if body exists — fixes Express 5 JSON parse crash on DELETE
+    // ✅ Only attach data if body exists — fixes Express 5 JSON parse crash
     ...(reqBody !== null && { data: reqBody }),
   };
   try {
