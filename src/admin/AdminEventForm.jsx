@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getEventByIdAPI, createEventAPI, updateEventAPI } from "../services/allAPI";
+import Loader from "../Loader";
 
 const EMPTY_FORM = {
   title: "", description: "", date: "", time: "",
@@ -70,23 +71,18 @@ export default function AdminEventForm() {
       });
   };
 
-  if (fetching) return (
-    <div className="text-muted text-sm text-center pt-24">Loading...</div>
-  );
+  if (fetching) return <Loader text="Loading event details..." />;
 
   return (
     <div className="bg-bg text-text min-h-screen px-6 pt-24 pb-12">
       <div className="max-w-2xl mx-auto">
 
-        {/* HEADER */}
         <div className="mb-6 pb-4 border-b border-border">
           <p className="text-xs uppercase tracking-widest text-muted mb-1">Admin</p>
           <h1 className="text-2xl font-bold">{isEdit ? "Edit Event" : "New Event"}</h1>
         </div>
 
         <div className="space-y-4">
-
-          {/* TITLE */}
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
               Title <span className="text-primary">*</span>
@@ -96,7 +92,6 @@ export default function AdminEventForm() {
               className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
           </div>
 
-          {/* DATE + TIME */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
@@ -112,7 +107,6 @@ export default function AdminEventForm() {
             </div>
           </div>
 
-          {/* LOCATION */}
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
               Location <span className="text-primary">*</span>
@@ -122,7 +116,6 @@ export default function AdminEventForm() {
               className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
           </div>
 
-          {/* PRICE + TICKETS */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Price (₹)</label>
@@ -140,7 +133,6 @@ export default function AdminEventForm() {
             </div>
           </div>
 
-          {/* CATEGORY */}
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Category</label>
             <input name="category" value={form.category} onChange={handleChange}
@@ -148,7 +140,6 @@ export default function AdminEventForm() {
               className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
           </div>
 
-          {/* IMAGE URL */}
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
               Image URL
@@ -157,7 +148,6 @@ export default function AdminEventForm() {
             <input type="url" name="image" value={form.image} onChange={handleChange}
               placeholder="https://..."
               className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-            {/* PREVIEW */}
             {form.image && (
               <img src={form.image} alt="preview"
                 className="mt-2 h-32 w-full object-cover rounded-lg border border-border"
@@ -165,7 +155,6 @@ export default function AdminEventForm() {
             )}
           </div>
 
-          {/* DESCRIPTION */}
           <div>
             <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Description</label>
             <textarea name="description" value={form.description} onChange={handleChange}
@@ -174,7 +163,6 @@ export default function AdminEventForm() {
               className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition resize-none" />
           </div>
 
-          {/* ACTIONS */}
           <div className="flex gap-3 pt-2">
             <button onClick={handleSubmit} disabled={loading}
               className="bg-primary text-black px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-soft transition disabled:opacity-50">
@@ -185,7 +173,6 @@ export default function AdminEventForm() {
               Cancel
             </button>
           </div>
-
         </div>
       </div>
       <ToastContainer position="top-center" autoClose={2000} style={{ zIndex: 9999 }} />
