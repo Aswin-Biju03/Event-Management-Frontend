@@ -5,15 +5,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { getEventByIdAPI, createEventAPI, updateEventAPI } from "../services/allAPI";
 
 const EMPTY_FORM = {
-  title: "",
-  description: "",
-  date: "",
-  time: "",
-  location: "",
-  price: "",
-  totalTickets: "",
-  category: "",
-  image: "",
+  title: "", description: "", date: "", time: "",
+  location: "", price: "", totalTickets: "", category: "", image: "",
 };
 
 export default function AdminEventForm() {
@@ -27,17 +20,16 @@ export default function AdminEventForm() {
 
   useEffect(() => {
     if (!isEdit) return;
-
     getEventByIdAPI(id)
       .then((res) => {
         const e = res?.data?.event || res?.data;
         if (e) {
-          const dateObj = e.date ? new Date(e.date) : null;
+          const d = e.date ? new Date(e.date) : null;
           setForm({
             title: e.title || "",
             description: e.description || "",
-            date: dateObj ? dateObj.toISOString().split("T")[0] : "",
-            time: dateObj ? dateObj.toTimeString().slice(0, 5) : "",
+            date: d ? d.toISOString().split("T")[0] : "",
+            time: d ? d.toTimeString().slice(0, 5) : "",
             location: e.location || "",
             price: e.price ?? "",
             totalTickets: e.totalTickets ?? "",
@@ -47,27 +39,22 @@ export default function AdminEventForm() {
         }
         setFetching(false);
       })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Failed to fetch event details.");
+      .catch(() => {
+        toast.error("Failed to fetch event.");
         setFetching(false);
       });
   }, [id, isEdit]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = () => {
     const { title, date, location, totalTickets } = form;
     if (!title || !date || !location || !totalTickets) {
       return toast.error("Please fill all required fields");
     }
-
     setLoading(true);
-    const apiCall = isEdit ? updateEventAPI(id, form) : createEventAPI(form);
-
-    apiCall
+    const call = isEdit ? updateEventAPI(id, form) : createEventAPI(form);
+    call
       .then((res) => {
         if (res?.status === 200 || res?.status === 201) {
           toast.success(isEdit ? "Event updated!" : "Event created!");
@@ -77,86 +64,129 @@ export default function AdminEventForm() {
           setLoading(false);
         }
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         toast.error("Something went wrong.");
         setLoading(false);
       });
   };
 
-  const fields = [
-    { name: "title", label: "Event Title", type: "text", placeholder: "e.g. Kochi Music Fest", required: true, full: true },
-    { name: "date", label: "Date", type: "date", required: true },
-    { name: "time", label: "Time", type: "time" },
-    { name: "location", label: "Location", type: "text", placeholder: "Venue address", required: true },
-    { name: "price", label: "Ticket Price (₹)", type: "number", placeholder: "0 for free" },
-    { name: "totalTickets", label: "Total Tickets", type: "number", placeholder: "e.g. 500", required: true },
-    { name: "category", label: "Category", type: "text", placeholder: "e.g. Music, Tech" },
-    { name: "image", label: "Image URL", type: "url", placeholder: "https://...", full: true },
-  ];
-
-  if (fetching) return <div className="text-muted text-sm text-center pt-24">Loading event parameters...</div>;
+  if (fetching) return (
+    <div className="text-muted text-sm text-center pt-24">Loading...</div>
+  );
 
   return (
     <div className="bg-bg text-text min-h-screen px-6 pt-24 pb-12">
-      <div className="max-w-3xl mx-auto">
-        
+      <div className="max-w-2xl mx-auto">
+
         {/* HEADER */}
         <div className="mb-6 pb-4 border-b border-border">
-          <p className="text-xs uppercase tracking-widest text-muted mb-1">Admin Panel</p>
-          <h1 className="text-3xl font-bold">{isEdit ? "Edit Event" : "New Event"}</h1>
+          <p className="text-xs uppercase tracking-widest text-muted mb-1">Admin</p>
+          <h1 className="text-2xl font-bold">{isEdit ? "Edit Event" : "New Event"}</h1>
         </div>
 
-        {/* INPUT GRID LAYER */}
-        <div className="bg-surface border border-border rounded-2xl p-6 sm:p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {fields.map(({ name, label, type, placeholder, required, full }) => (
-              <div key={name} className={full ? "md:col-span-2" : ""}>
-                <label className="block text-xs text-muted uppercase tracking-wider mb-1.5 font-medium">
-                  {label} {required && <span className="text-primary">*</span>}
-                </label>
-                <input
-                  type={type}
-                  name={name}
-                  value={form[name]}
-                  onChange={handleChange}
-                  placeholder={placeholder}
-                  className="w-full bg-bg border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary transition"
-                />
-              </div>
-            ))}
+        <div className="space-y-4">
 
-            <div className="md:col-span-2">
-              <label className="block text-xs text-muted uppercase tracking-wider mb-1.5 font-medium">Description</label>
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                placeholder="Tell attendees what to expect..."
-                rows={4}
-                className="w-full bg-bg border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary transition resize-none"
-              />
+          {/* TITLE */}
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
+              Title <span className="text-primary">*</span>
+            </label>
+            <input name="title" value={form.title} onChange={handleChange}
+              placeholder="e.g. Kochi Music Fest"
+              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+          </div>
+
+          {/* DATE + TIME */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
+                Date <span className="text-primary">*</span>
+              </label>
+              <input type="date" name="date" value={form.date} onChange={handleChange}
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+            </div>
+            <div>
+              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Time</label>
+              <input type="time" name="time" value={form.time} onChange={handleChange}
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
             </div>
           </div>
 
-          {/* ACTIONS FOOTER LINK MATRIX */}
-          <div className="flex gap-4 mt-8">
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="bg-primary text-black px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-soft transition disabled:opacity-50"
-            >
+          {/* LOCATION */}
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
+              Location <span className="text-primary">*</span>
+            </label>
+            <input name="location" value={form.location} onChange={handleChange}
+              placeholder="Venue address"
+              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+          </div>
+
+          {/* PRICE + TICKETS */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Price (₹)</label>
+              <input type="number" name="price" value={form.price} onChange={handleChange}
+                placeholder="0 for free"
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+            </div>
+            <div>
+              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
+                Total Tickets <span className="text-primary">*</span>
+              </label>
+              <input type="number" name="totalTickets" value={form.totalTickets} onChange={handleChange}
+                placeholder="e.g. 500"
+                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+            </div>
+          </div>
+
+          {/* CATEGORY */}
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Category</label>
+            <input name="category" value={form.category} onChange={handleChange}
+              placeholder="e.g. Music, Tech, Sports"
+              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+          </div>
+
+          {/* IMAGE URL */}
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
+              Image URL
+              <span className="normal-case ml-2 text-muted/60">(paste any image link)</span>
+            </label>
+            <input type="url" name="image" value={form.image} onChange={handleChange}
+              placeholder="https://..."
+              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
+            {/* PREVIEW */}
+            {form.image && (
+              <img src={form.image} alt="preview"
+                className="mt-2 h-32 w-full object-cover rounded-lg border border-border"
+                onError={(e) => e.target.style.display = "none"} />
+            )}
+          </div>
+
+          {/* DESCRIPTION */}
+          <div>
+            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Description</label>
+            <textarea name="description" value={form.description} onChange={handleChange}
+              placeholder="Tell attendees what to expect..."
+              rows={3}
+              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition resize-none" />
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex gap-3 pt-2">
+            <button onClick={handleSubmit} disabled={loading}
+              className="bg-primary text-black px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-soft transition disabled:opacity-50">
               {loading ? "Saving..." : isEdit ? "Save Changes" : "Create Event"}
             </button>
-            <button
-              onClick={() => navigate("/admin/events")}
-              className="border border-border px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-surface-soft transition"
-            >
+            <button onClick={() => navigate("/admin/events")}
+              className="border border-border px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-surface-soft transition">
               Cancel
             </button>
           </div>
-        </div>
 
+        </div>
       </div>
       <ToastContainer position="top-center" autoClose={2000} style={{ zIndex: 9999 }} />
     </div>
