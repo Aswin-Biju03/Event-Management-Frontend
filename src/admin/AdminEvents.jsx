@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getAllEventsAPI, deleteEventAPI } from "../services/allAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loader from "../components/Loader";
+import Loader from "../Loader";
 
 export default function AdminEvents() {
   const [events, setEvents] = useState([]);

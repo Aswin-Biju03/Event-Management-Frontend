@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getAllEventsAPI, getAllBookingsAPI } from "../services/allAPI";
-import Loader from "../components/Loader";
+import Loader from "../Loader";
+
 
 export default function AdminHome() {
   const [events, setEvents] = useState([]);

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllEventsAPI } from "./services/allAPI";
-import Loader from "./components/Loader";
+import Loader from "./Loader";
+
 
 function EventsPage() {
   const [events, setEvents] = useState([]);
