@@ -4,9 +4,9 @@ import { verifyTicketAttendanceAPI } from "../services/allAPI";
 
 export default function AdminScanner() {
   const scannerRef = useRef(null);
+  const hasScanned = useRef(false); // ✅ prevents duplicate scans
 
   useEffect(() => {
-    // Only build the scanner instance once on component mount
     if (scannerRef.current) return;
 
     const scanner = new Html5QrcodeScanner(
@@ -17,29 +17,34 @@ export default function AdminScanner() {
 
     scanner.render(
       (decodedText) => {
-        console.log("Scanned UUID:", decodedText);
+        // ✅ Ignore if already processing a scan
+        if (hasScanned.current) return;
+        hasScanned.current = true;
 
-        // Send the raw UUID string directly to the validation API
+        // Stop camera immediately after first successful read
+        scanner.pause();
+
         verifyTicketAttendanceAPI(decodedText)
           .then((res) => {
             alert(`✅ ${res?.data?.message || "Access Granted!"}`);
           })
           .catch((err) => {
-            console.error(err);
             alert(`❌ ${err?.response?.data?.message || "Invalid or Used Ticket!"}`);
+          })
+          .finally(() => {
+            // ✅ Resume scanning for next ticket after alert is dismissed
+            hasScanned.current = false;
+            scanner.resume();
           });
       },
-      (error) => {
-        // Suppress continuous passive scanning console noise
-      }
+      () => {}
     );
 
     scannerRef.current = scanner;
 
-    // Cleanup: shut off camera feed when leaving the admin route page
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch((err) => console.error(err));
+        scannerRef.current.clear().catch(() => {});
         scannerRef.current = null;
       }
     };
@@ -48,18 +53,13 @@ export default function AdminScanner() {
   return (
     <div className="min-h-screen bg-bg text-text flex items-center justify-center p-6 pt-24">
       <div className="w-full max-w-md bg-surface border border-border rounded-2xl p-6 shadow-xl">
-        
-        {/* HEADER BRANDING */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-white">QR Ticket Scanner</h1>
           <p className="text-xs text-muted mt-1">Scan gate passes to instantly verify guest entry UUID tokens.</p>
         </div>
-
-        {/* WEB CAMERA TARGET CAMERA CANVAS VIEWPORT */}
         <div className="rounded-xl overflow-hidden border border-border bg-black">
           <div id="reader" className="w-full" />
         </div>
-
       </div>
     </div>
   );
