@@ -46,10 +46,6 @@ axiosInstance.interceptors.response.use(
       case 401:
         console.log("❌ Unauthorized - Invalid Token");
 
-        // OPTIONAL: auto logout
-        // sessionStorage.clear();
-        // window.location.href = "/login";
-
         break;
 
       case 403:
