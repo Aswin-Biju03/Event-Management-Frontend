@@ -31,14 +31,13 @@ export default function Login() {
           sessionStorage.setItem("token", token);
           sessionStorage.setItem("user", JSON.stringify(user));
 
-          // Simple routing delay for toast visibility
           setTimeout(() => {
             if (user?.role === "admin") {
               navigate("/admin");
             } else {
               navigate("/");
             }
-            window.location.reload(); // Quick state refresh for Navbar state update
+            window.location.reload(); 
           }, 1500);
         } else {
           toast.error(res?.data?.message || "Login failed");
@@ -97,7 +96,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* REGISTRATION SWITCH FOOTER */}
         <p className="text-center text-sm text-muted mt-6">
           Don't have an account?{" "}
           <Link to="/register" className="text-primary hover:underline font-medium">

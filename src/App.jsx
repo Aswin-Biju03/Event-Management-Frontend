@@ -24,7 +24,6 @@ function App() {
   const { role, authorisedUser } = useContext(routeContext);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simple loader on app mount
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer); // Clean up timer
@@ -39,12 +38,11 @@ function App() {
       <Navbar />
 
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* User Protected Routes */}
+        {/* User Routes */}
         {role === "user" && authorisedUser && (
           <>
             <Route path="/events" element={<EventsPage />} />
@@ -54,7 +52,7 @@ function App() {
           </>
         )}
 
-        {/* Admin Protected Routes */}
+        {/* Admin Routes */}
         {role === "admin" && authorisedUser && (
           <>
             <Route path="/admin" element={<AdminHome />} />
@@ -65,7 +63,6 @@ function App() {
           </>
         )}
 
-        {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>

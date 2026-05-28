@@ -6,7 +6,6 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Read user from storage on component load
     const storedUser = sessionStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -14,7 +13,7 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    sessionStorage.clear(); // Clears user and role data instantly
+    sessionStorage.clear(); 
     setUser(null);
     navigate("/login");
   };
@@ -29,10 +28,8 @@ export default function Navbar() {
         Event<span className="text-primary">.ly</span>
       </Link>
 
-      {/* NAVIGATION LINKS */}
       <div className="flex items-center gap-4 text-sm text-muted">
         
-        {/* Guest Links */}
         {!user && (
           <>
             <Link to="/events" className="hover:text-text transition">Events</Link>
@@ -43,7 +40,6 @@ export default function Navbar() {
           </>
         )}
 
-        {/* Regular User Links */}
         {user && !isAdmin && (
           <>
             <Link to="/events" className="hover:text-text transition">Events</Link>
@@ -51,7 +47,6 @@ export default function Navbar() {
           </>
         )}
 
-        {/* Admin Links */}
         {user && isAdmin && (
           <>
             <Link to="/admin" className="hover:text-text transition">Dashboard</Link>
@@ -60,7 +55,6 @@ export default function Navbar() {
           </>
         )}
 
-        {/* Logged In User Controls (Avatar & Logout) */}
         {user && (
           <div className="flex items-center gap-3 ml-2">
             <div className="w-8 h-8 bg-primary text-black font-bold flex items-center justify-center rounded-full">

@@ -7,6 +7,8 @@ import RouteGuardContent from "./contextAPI/routeGuardContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <RouteGuardContent><App /></RouteGuardContent>
+    <RouteGuardContent>
+      <App />
+    </RouteGuardContent>
   </BrowserRouter>,
 );
