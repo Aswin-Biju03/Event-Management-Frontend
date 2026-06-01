@@ -53,7 +53,7 @@ function Home() {
 
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Upcoming Events</h2>
+          <h2 className="text-2xl font-bold">Featured Events</h2>
           <Link to="/events" className="text-muted hover:text-text text-sm">View all →</Link>
         </div>
         {events.length === 0 ? (
