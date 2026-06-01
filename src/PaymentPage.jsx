@@ -35,6 +35,7 @@ const formatExpiry = (v) => {
 const validators = {
   card: ({ cardName, cardNum, expiry, cvv }) => {
     if (!cardName.trim())                          return { cardName: "Name is required" };
+    if (!/^[a-zA-Z\s'-]+$/.test(cardName.trim())) return { cardName: "Name must contain letters only" };
     const digits = cardNum.replace(/\s/g, "");
     if (digits.length < 16)                        return { cardNum: "Enter a valid 16-digit card number" };
     const [mm] = expiry.replace(/\s/g, "").split("/");
