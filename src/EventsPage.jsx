@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { getAllEventsAPI } from "./services/allAPI";
 import Loader from "./Loader";
 
-
 function EventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,8 +48,8 @@ function EventsPage() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {events.map((event) => {
           if (!event) return null;
-          const shortVenue = typeof event.venue === "string"
-            ? event.venue.split(",").pop().trim() : "Location N/A";
+          const locationStr = event.location || event.venue || "";
+          const shortVenue = locationStr ? locationStr.split(",").pop().trim() : "Location N/A";
           const eventDate = event.date
             ? new Date(event.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
             : "N/A";
