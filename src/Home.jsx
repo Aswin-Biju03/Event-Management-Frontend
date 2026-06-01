@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { getAllEventsAPI } from "./services/allAPI";
 import Loader from "./Loader";
 
-
 function Home() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,8 +64,8 @@ function Home() {
               const eventDate = event.date
                 ? new Date(event.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
                 : "N/A";
-              const venueCity = typeof event.venue === "string"
-                ? event.venue.split(",").pop().trim() : "Location N/A";
+              const locationStr = event.location || event.venue || "";
+              const venueCity = locationStr ? locationStr.split(",").pop().trim() : "Location N/A";
               return (
                 <div key={event._id || event.id} onClick={() => navigate(`/event-detail/${event._id}`)}
                   className="bg-surface border border-border rounded-2xl hover:shadow-lg transition cursor-pointer overflow-hidden flex flex-col justify-between h-full">
