@@ -31,6 +31,7 @@ export default function PaymentPage() {
   const fee = price > 0 ? 20 : 0;
   const total = price * qty + fee;
 
+  // -------- FORMATTERS --------
   const formatCard = (val) =>
     val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
 
@@ -39,8 +40,43 @@ export default function PaymentPage() {
     return v.length >= 3 ? v.slice(0, 2) + " / " + v.slice(2) : v;
   };
 
+  // -------- SIMPLE VALIDATION --------
+  const validate = () => {
+    if (method === "card") {
+      if (!cardName || !cardNum || !expiry || !cvv) {
+        return "Fill all card details";
+      }
+    }
+
+    if (method === "upi") {
+      if (!upiId) {
+        return "Enter UPI ID";
+      }
+      if (!upiId.includes("@")) {
+        return "Invalid UPI ID";
+      }
+    }
+
+    if (method === "net") {
+      if (!bank) {
+        return "Select a bank";
+      }
+    }
+
+    return null;
+  };
+
+  // -------- SUBMIT --------
   const handleSubmit = () => {
+    const error = validate();
+
+    if (error) {
+      alert(error);
+      return;
+    }
+
     setProcessing(true);
+
     setTimeout(() => {
       bookEventAPI({ eventId: event._id || event.id, userId, quantity: qty })
         .then(() => {
@@ -69,7 +105,12 @@ export default function PaymentPage() {
             <span>{event.title}</span>
             <span>₹{price} × {qty}</span>
           </div>
-          {fee > 0 && <div className="flex justify-between text-muted"><span>Convenience fee</span><span>₹{fee}</span></div>}
+          {fee > 0 && (
+            <div className="flex justify-between text-muted">
+              <span>Convenience fee</span>
+              <span>₹{fee}</span>
+            </div>
+          )}
           <div className="h-px bg-border my-1" />
           <div className="flex justify-between font-semibold text-white">
             <span>Total</span><span>₹{total}</span>
@@ -81,17 +122,21 @@ export default function PaymentPage() {
           <p className="text-xs text-muted uppercase tracking-wider mb-2">Tickets</p>
           <div className="flex items-center gap-3">
             <button onClick={() => setQty(q => Math.max(1, q - 1))}
-              className="w-8 h-8 border border-border rounded-lg bg-surface text-white flex items-center justify-center hover:bg-surface-soft transition">−</button>
+              className="w-8 h-8 border border-border rounded-lg bg-surface text-white flex items-center justify-center">
+              −
+            </button>
             <span className="text-base font-semibold text-white w-5 text-center">{qty}</span>
             <button onClick={() => setQty(q => Math.min(10, q + 1))}
-              className="w-8 h-8 border border-border rounded-lg bg-surface text-white flex items-center justify-center hover:bg-surface-soft transition">+</button>
+              className="w-8 h-8 border border-border rounded-lg bg-surface text-white flex items-center justify-center">
+              +
+            </button>
             <span className="text-xs text-muted ml-1">person(s)</span>
           </div>
         </div>
 
         <div className="h-px bg-border mb-5" />
 
-        {/* METHOD SELECT */}
+        {/* PAYMENT METHOD */}
         <div className="mb-5">
           <p className="text-xs text-muted uppercase tracking-wider mb-2">Payment method</p>
           <div className="flex flex-col gap-2">
@@ -101,66 +146,46 @@ export default function PaymentPage() {
               { id: "net", label: "Net banking" },
             ].map((m) => (
               <button key={m.id} onClick={() => setMethod(m.id)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border text-sm transition text-left
-                  ${method === m.id ? "border-primary text-white bg-primary/5" : "border-border text-muted hover:bg-surface-soft"}`}>
+                className={`px-4 py-2.5 rounded-xl border text-sm text-left
+                ${method === m.id ? "border-primary text-white bg-primary/5" : "border-border text-muted"}`}>
                 {m.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* CARD FIELDS */}
+        {/* CARD */}
         {method === "card" && (
           <div className="space-y-3 mb-5">
-            <div className="h-px bg-border mb-4" />
-            <div>
-              <label className="text-xs text-muted block mb-1.5">Name on card</label>
-              <input value={cardName} onChange={e => setCardName(e.target.value)} placeholder="Rahul Sharma"
-                className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
-            </div>
-            <div>
-              <label className="text-xs text-muted block mb-1.5">Card number</label>
-              <input value={cardNum} onChange={e => setCardNum(formatCard(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19}
-                className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-muted block mb-1.5">Expiry</label>
-                <input value={expiry} onChange={e => setExpiry(formatExpiry(e.target.value))} placeholder="MM / YY" maxLength={7}
-                  className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
-              </div>
-              <div>
-                <label className="text-xs text-muted block mb-1.5">CVV</label>
-                <input value={cvv} onChange={e => setCvv(e.target.value.replace(/\D/g,"").slice(0,4))} placeholder="•••" type="password" maxLength={4}
-                  className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
-              </div>
-            </div>
+            <input placeholder="Name on card" value={cardName}
+              onChange={e => setCardName(e.target.value)} className="w-full p-2 border rounded" />
+            <input placeholder="Card number" value={cardNum}
+              onChange={e => setCardNum(formatCard(e.target.value))} className="w-full p-2 border rounded" />
+            <input placeholder="MM / YY" value={expiry}
+              onChange={e => setExpiry(formatExpiry(e.target.value))} className="w-full p-2 border rounded" />
+            <input placeholder="CVV" type="password" value={cvv}
+              onChange={e => setCvv(e.target.value)} className="w-full p-2 border rounded" />
           </div>
         )}
 
-        {/* UPI FIELDS */}
+        {/* UPI */}
         {method === "upi" && (
           <div className="mb-5">
-            <div className="h-px bg-border mb-4" />
-            <label className="text-xs text-muted block mb-1.5">UPI ID</label>
-            <input value={upiId} onChange={e => setUpiId(e.target.value)} placeholder="yourname@upi"
-              className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
+            <input placeholder="yourname@upi" value={upiId}
+              onChange={e => setUpiId(e.target.value)} className="w-full p-2 border rounded" />
           </div>
         )}
 
-        {/* NET BANKING FIELDS */}
+        {/* NET BANKING */}
         {method === "net" && (
           <div className="mb-5">
-            <div className="h-px bg-border mb-4" />
-            <label className="text-xs text-muted block mb-1.5">Select bank</label>
             <select value={bank} onChange={e => setBank(e.target.value)}
-              className="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition">
+              className="w-full p-2 border rounded">
               <option value="">Choose bank...</option>
               <option>State Bank of India</option>
               <option>HDFC Bank</option>
               <option>ICICI Bank</option>
               <option>Axis Bank</option>
-              <option>Kotak Mahindra Bank</option>
             </select>
           </div>
         )}
@@ -168,11 +193,11 @@ export default function PaymentPage() {
         {/* ACTIONS */}
         <div className="flex gap-3">
           <button onClick={() => navigate(-1)} disabled={processing}
-            className="w-1/3 py-2.5 border border-border rounded-xl text-sm font-medium hover:bg-surface-soft transition disabled:opacity-50">
+            className="w-1/3 py-2 border rounded">
             Cancel
           </button>
           <button onClick={handleSubmit} disabled={processing}
-            className="w-2/3 py-2.5 bg-primary text-black font-bold rounded-xl text-sm hover:bg-primary-soft transition flex items-center justify-center disabled:opacity-50">
+            className="w-2/3 py-2 bg-primary text-black rounded">
             {processing ? "Processing..." : `Pay ₹${total}`}
           </button>
         </div>
