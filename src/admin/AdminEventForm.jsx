@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { getEventByIdAPI, createEventAPI, updateEventAPI } from "../services/allAPI";
+import {
+  getEventByIdAPI,
+  createEventAPI,
+  updateEventAPI,
+} from "../services/allAPI";
 import Loader from "../Loader";
 
 const EMPTY_FORM = {
-  title: "", description: "", date: "", time: "",
-  location: "", price: "", totalTickets: "", category: "", image: "",
+  title: "",
+  description: "",
+  date: "",
+  time: "",
+  location: "",
+  price: "",
+  totalTickets: "",
+  category: "",
+  image: "",
 };
 
 export default function AdminEventForm() {
@@ -20,55 +30,64 @@ export default function AdminEventForm() {
   const [fetching, setFetching] = useState(isEdit);
 
   useEffect(() => {
-    if (!isEdit) return;
-    getEventByIdAPI(id)
-      .then((res) => {
-        const e = res?.data?.event || res?.data;
-        if (e) {
-          const d = e.date ? new Date(e.date) : null;
-          setForm({
-            title: e.title || "",
-            description: e.description || "",
-            date: d ? d.toISOString().split("T")[0] : "",
-            time: d ? d.toTimeString().slice(0, 5) : "",
-            location: e.location || "",
-            price: e.price ?? "",
-            totalTickets: e.totalTickets ?? "",
-            category: e.category || "",
-            image: e.image || "",
-          });
-        }
-        setFetching(false);
-      })
-      .catch(() => {
-        toast.error("Failed to fetch event.");
-        setFetching(false);
-      });
-  }, [id, isEdit]);
+    if (isEdit) fetchEvent();
+  }, [id]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const fetchEvent = async () => {
+    try {
+      const res = await getEventByIdAPI(id);
+      const e = res?.data?.event || res?.data;
 
-  const handleSubmit = () => {
+      if (e) {
+        const d = e.date ? new Date(e.date) : null;
+
+        setForm({
+          title: e.title || "",
+          description: e.description || "",
+          date: d ? d.toISOString().split("T")[0] : "",
+          time: d ? d.toTimeString().slice(0, 5) : "",
+          location: e.location || "",
+          price: e.price ?? "",
+          totalTickets: e.totalTickets ?? "",
+          category: e.category || "",
+          image: e.image || "",
+        });
+      }
+    } catch {
+      toast.error("Failed to fetch event.");
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async () => {
     const { title, date, location, totalTickets } = form;
+
     if (!title || !date || !location || !totalTickets) {
       return toast.error("Please fill all required fields");
     }
-    setLoading(true);
-    const call = isEdit ? updateEventAPI(id, form) : createEventAPI(form);
-    call
-      .then((res) => {
-        if (res?.status === 200 || res?.status === 201) {
-          toast.success(isEdit ? "Event updated!" : "Event created!");
-          setTimeout(() => navigate("/admin/events"), 1200);
-        } else {
-          toast.error(res?.data?.message || "Operation failed.");
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        toast.error("Something went wrong.");
-        setLoading(false);
-      });
+
+    try {
+      setLoading(true);
+
+      const res = isEdit
+        ? await updateEventAPI(id, form)
+        : await createEventAPI(form);
+
+      if (res?.status === 200 || res?.status === 201) {
+        toast.success(isEdit ? "Event updated!" : "Event created!");
+        setTimeout(() => navigate("/admin/events"), 1200);
+      } else {
+        toast.error(res?.data?.message || "Operation failed.");
+      }
+    } catch {
+      toast.error("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (fetching) return <Loader text="Loading event details..." />;
@@ -76,106 +95,40 @@ export default function AdminEventForm() {
   return (
     <div className="bg-bg text-text min-h-screen px-6 pt-24 pb-12">
       <div className="max-w-2xl mx-auto">
-
-        <div className="mb-6 pb-4 border-b border-border">
-          <p className="text-xs uppercase tracking-widest text-muted mb-1">Admin</p>
-          <h1 className="text-2xl font-bold">{isEdit ? "Edit Event" : "New Event"}</h1>
-        </div>
+        <h1 className="text-2xl font-bold mb-6">
+          {isEdit ? "Edit Event" : "New Event"}
+        </h1>
 
         <div className="space-y-4">
-          <div>
-            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
-              Title <span className="text-primary">*</span>
-            </label>
-            <input name="title" value={form.title} onChange={handleChange}
-              placeholder="e.g. Kochi Music Fest"
-              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-          </div>
+          <input name="title" value={form.title} onChange={handleChange} placeholder="Title" />
+          <input type="date" name="date" value={form.date} onChange={handleChange} />
+          <input type="time" name="time" value={form.time} onChange={handleChange} />
+          <input name="location" value={form.location} onChange={handleChange} placeholder="Location" />
+          <input type="number" name="price" value={form.price} onChange={handleChange} placeholder="Price" />
+          <input type="number" name="totalTickets" value={form.totalTickets} onChange={handleChange} placeholder="Tickets" />
+          <input name="category" value={form.category} onChange={handleChange} placeholder="Category" />
+          <input type="url" name="image" value={form.image} onChange={handleChange} placeholder="Image URL" />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
-                Date <span className="text-primary">*</span>
-              </label>
-              <input type="date" name="date" value={form.date} onChange={handleChange}
-                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-            </div>
-            <div>
-              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Time</label>
-              <input type="time" name="time" value={form.time} onChange={handleChange}
-                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-            </div>
-          </div>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Description"
+          />
 
-          <div>
-            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
-              Location <span className="text-primary">*</span>
-            </label>
-            <input name="location" value={form.location} onChange={handleChange}
-              placeholder="Venue address"
-              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Price (₹)</label>
-              <input type="number" name="price" value={form.price} onChange={handleChange}
-                placeholder="0 for free"
-                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-            </div>
-            <div>
-              <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
-                Total Tickets <span className="text-primary">*</span>
-              </label>
-              <input type="number" name="totalTickets" value={form.totalTickets} onChange={handleChange}
-                placeholder="e.g. 500"
-                className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Category</label>
-            <input name="category" value={form.category} onChange={handleChange}
-              placeholder="e.g. Music, Tech, Sports"
-              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-          </div>
-
-          <div>
-            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">
-              Image URL
-              <span className="normal-case ml-2 text-muted/60">(paste any image link)</span>
-            </label>
-            <input type="url" name="image" value={form.image} onChange={handleChange}
-              placeholder="https://..."
-              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition" />
-            {form.image && (
-              <img src={form.image} alt="preview"
-                className="mt-2 h-32 w-full object-cover rounded-lg border border-border"
-                onError={(e) => e.target.style.display = "none"} />
-            )}
-          </div>
-
-          <div>
-            <label className="text-xs text-muted uppercase tracking-wider block mb-1.5">Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange}
-              placeholder="Tell attendees what to expect..."
-              rows={3}
-              className="w-full bg-surface border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition resize-none" />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button onClick={handleSubmit} disabled={loading}
-              className="bg-primary text-black px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-soft transition disabled:opacity-50">
-              {loading ? "Saving..." : isEdit ? "Save Changes" : "Create Event"}
+          <div className="flex gap-3">
+            <button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Saving..." : isEdit ? "Update" : "Create"}
             </button>
-            <button onClick={() => navigate("/admin/events")}
-              className="border border-border px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-surface-soft transition">
+
+            <button onClick={() => navigate("/admin/events")}>
               Cancel
             </button>
           </div>
         </div>
       </div>
-      <ToastContainer position="top-center" autoClose={2000} style={{ zIndex: 9999 }} />
+
+      <ToastContainer position="top-center" autoClose={2000} />
     </div>
   );
 }
