@@ -1,13 +1,11 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://event-management-backend-40ut.onrender.com", // ⚠️ change if your backend runs elsewhere
+  baseURL: "https://event-management-backend-40ut.onrender.com",
   timeout: 10000,
 });
 
-// ─────────────────────────────────────────────
 // REQUEST INTERCEPTOR (ATTACH TOKEN)
-// ─────────────────────────────────────────────
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("token");

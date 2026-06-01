@@ -17,11 +17,9 @@ export default function AdminScanner() {
 
     scanner.render(
       (decodedText) => {
-        // ✅ Ignore if already processing a scan
         if (hasScanned.current) return;
         hasScanned.current = true;
 
-        // Stop camera immediately after first successful read
         scanner.pause();
 
         verifyTicketAttendanceAPI(decodedText)
@@ -32,7 +30,6 @@ export default function AdminScanner() {
             alert(`❌ ${err?.response?.data?.message || "Invalid or Used Ticket!"}`);
           })
           .finally(() => {
-            // ✅ Resume scanning for next ticket after alert is dismissed
             hasScanned.current = false;
             scanner.resume();
           });
